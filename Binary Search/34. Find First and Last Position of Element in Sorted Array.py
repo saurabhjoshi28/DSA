@@ -1,43 +1,56 @@
 class Solution:
     def searchRange(self, nums: List[int], target: int) -> List[int]:
+        """
+        🧠 Intuition:
+        We need to find the starting and ending positions of a given `target` in a sorted array.
+        Since the array is sorted, we can use binary search to do this efficiently.
+
+        👉 We do two binary searches:
+        1️⃣ Find the **first occurrence** (lower bound) of target.
+        2️⃣ Find the **first index greater than target** (upper bound).
+
+        The range of target in nums will be:
+            [lower_bound, upper_bound - 1]
+
+        ⚠️ Edge Case:
+        If target is not present:
+        - `lower_bound` may go out of bounds (`n`)
+        - or nums[lower_bound] != target
+        In that case, we return [-1, -1].
+        """
+
         n = len(nums)
+        lower_bound = n  # stores first index >= target
+        upper_bound = n  # stores first index > target
 
-        # ------------------------------------------------------------
-        # Problem: Find First and Last Occurrence of Target in Sorted Array
-        # ------------------------------------------------------------
-        # Idea: Use Binary Search twice
-        # 1. First to find FLOOR → rightmost index where nums[i] <= target
-        # 2. Second to find CEIL → leftmost index where nums[i] >= target
-        # ------------------------------------------------------------
-        # Time Complexity: O(log N) for each binary search → total: O(log N)
-        # Space Complexity: O(1)
-        # ------------------------------------------------------------
-
-        floor = -1  # Will store the rightmost occurrence of target
-        ceil = -1   # Will store the leftmost occurrence of target
-
-        # Step 1: Binary Search for FLOOR (last occurrence of target)
+        # ✅ First binary search to find upper_bound (smallest number > target)
         low, high = 0, n - 1
         while low <= high:
             mid = (low + high) // 2
-            if nums[mid] <= target:
-                floor = mid       # possible last occurrence
-                low = mid + 1     # move right to check for later occurrence
+            if nums[mid] > target:
+                upper_bound = mid
+                high = mid - 1  # move left
             else:
-                high = mid - 1    # move left
+                low = mid + 1   # move right
 
-        # Step 2: Binary Search for CEIL (first occurrence of target)
+        # ✅ Second binary search to find lower_bound (smallest index with nums[mid] >= target)
         low, high = 0, n - 1
         while low <= high:
             mid = (low + high) // 2
             if nums[mid] >= target:
-                ceil = mid        # possible first occurrence
-                high = mid - 1    # move left to check for earlier occurrence
+                lower_bound = mid
+                high = mid - 1  # move left
             else:
-                low = mid + 1     # move right
+                low = mid + 1   # move right
 
-        # Step 3: Validate that target exists at both indices
-        if not nums or nums[floor] != target:
+        # ⚠️ Check if target is actually present
+        if not nums or lower_bound == n or nums[lower_bound] != target:
             return [-1, -1]
         else:
-            return [ceil, floor]
+            # upper_bound - 1 gives the last occurrence of target
+            return [lower_bound, upper_bound - 1]
+
+        """
+        ⏱️ Time Complexity: O(log N) for each binary search → overall O(log N)
+        📦 Space Complexity: O(1) (we only use variables)
+        """
